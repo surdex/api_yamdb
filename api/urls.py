@@ -1,5 +1,7 @@
 from django.urls import path
 
-urlpatterns = [
+from . import views
 
+urlpatterns = [
+    path('v1/auth/email', views.SendConfirmationCode.as_view())
 ]
