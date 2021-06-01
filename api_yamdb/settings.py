@@ -8,6 +8,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+AUTH_USER_MODEL = 'api.User'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
