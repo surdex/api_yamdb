@@ -16,22 +16,28 @@ class User(AbstractUser):
     email = models.EmailField(
         unique=True,
     )
-    confirmation_code = models.IntegerField(
+    confirmation_code = models.CharField(
+        max_length=40,
         blank=True,
-        null=True,
     )
     bio = models.TextField(
         blank=True,
-        null=True,
     )
     role = models.CharField(
         max_length=10,
         choices=USER_ROLES,
         default='user'
     )
+    password = models.CharField(
+        max_length=128,
+        blank=True,
+    )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = [
+        'username',
+        'password',
+    ]
 
     def __str__(self):
         return self.email
