@@ -1,14 +1,16 @@
 from uuid import uuid4
-from django.shortcuts import get_object_or_404
+
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .models import User
 from .permissions import DoWhatYouWant
 from .serializers import SendConfirmationCodeSerializer, SendTokenSerializer
+
+User = get_user_model()
 
 
 class SendConfirmationCodeView(CreateAPIView):
@@ -41,6 +43,7 @@ class SendConfirmationCodeView(CreateAPIView):
                 confirmation_code=str(confirmation_code),
                 is_active=False,
             )
+
 
 class SendTokenView(CreateAPIView):
     serializer_class = SendTokenSerializer
