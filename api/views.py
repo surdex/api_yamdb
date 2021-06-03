@@ -2,20 +2,15 @@ from uuid import uuid4
 
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-from django.db.models import query
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.filters import SearchFilter
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
-from .permissions import DoWhatYouWant
+from .permissions import AdminOnly, DoWhatYouWant
 from .serializers import (
-    ProfileSerializer,
-    SendConfirmationCodeSerializer,
-    SendTokenSerializer
+    ProfileSerializer, SendConfirmationCodeSerializer, SendTokenSerializer,
 )
 
 User = get_user_model()
@@ -84,18 +79,19 @@ class ProfileView(RetrieveUpdateAPIView):
             pk=self.request.user.pk
         )
 
+    def perform_update(self, serializer):
+        if not (
+            self.request.user.is_superuser or
+            self.request.user.role == 'admin'
+        ):
+            serializer.validated_data['role'] = 'user'
+        serializer.save()
+
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
-    pagination_class = PageNumberPagination
     permission_classes = [
-
-    ]
-    filter_backends = [
-        SearchFilter,
-    ]
-    search_fields = [
-        'name',
+        AdminOnly,
     ]
     lookup_field = 'username'

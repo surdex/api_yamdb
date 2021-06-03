@@ -1,9 +1,10 @@
-from . import models
 from django.contrib.auth import get_user_model
 from django.db.models import fields
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from . import models
 
 User = get_user_model()
 
@@ -52,7 +53,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
     bio = serializers.CharField(required=False)
-    role = serializers.ReadOnlyField(required=False)
+    role = serializers.CharField(required=False)
 
     class Meta:
         fields = [
