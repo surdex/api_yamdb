@@ -7,8 +7,11 @@ from rest_framework_simplejwt.views import (
 from .views import CommentViewSet, ReviewViewSet
 
 v1_router = DefaultRouter()
-v1_router.register(r'titles/(?P<title_id>\d+)/reviews', ReviewViewSet,
-                   basename='Review')
+v1_router.register(
+    r'titles/(?P<title_id>\d+)/reviews',
+    ReviewViewSet,
+    basename='Review'
+)
 v1_router.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,

@@ -12,7 +12,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        field = ['id', 'text', 'author', 'score', 'pub_date']
+        field = ['id', 'title', 'text', 'author', 'score', 'pub_date']
         validators = [
             UniqueTogetherValidator(
                 queryset=Review.objects.all(),

@@ -18,7 +18,7 @@ class ReviewViewSet(ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        title = get_object_or_404(Title, id=self.kwargs.get('id'))
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         queryset = title.reviews.all()
         return queryset
 

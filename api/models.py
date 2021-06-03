@@ -50,6 +50,13 @@ class Review(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
 
+    class Meta:
+        ordering = ['-pub_date']
+        constraints = [
+            models.UniqueConstraint(fields=['author', 'title'],
+                                    name='unique_review')
+        ]
+
     def __str__(self):
         return self.text
 
@@ -63,6 +70,9 @@ class Comment(models.Model):
     review = models.ForeignKey(
         'Review', on_delete=models.CASCADE, related_name='comments'
     )
+
+    class Meta:
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.text
