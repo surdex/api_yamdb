@@ -1,4 +1,6 @@
+from . import models
 from django.contrib.auth import get_user_model
+from django.db.models import fields
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, serializers
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -44,3 +46,21 @@ class SendTokenSerializer(serializers.ModelSerializer):
             token = self.get_token(user)
             data['token'] = str(token.access_token)
         return data
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    bio = serializers.CharField(required=False)
+    role = serializers.ReadOnlyField(required=False)
+
+    class Meta:
+        fields = [
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role',
+        ]
+        model = User

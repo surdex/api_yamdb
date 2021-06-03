@@ -2,13 +2,21 @@ from uuid import uuid4
 
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db.models import query
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.filters import SearchFilter
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 from .permissions import DoWhatYouWant
-from .serializers import SendConfirmationCodeSerializer, SendTokenSerializer
+from .serializers import (
+    ProfileSerializer,
+    SendConfirmationCodeSerializer,
+    SendTokenSerializer
+)
 
 User = get_user_model()
 
@@ -66,3 +74,28 @@ class SendTokenView(CreateAPIView):
                 },
                 status=status.HTTP_200_OK,
             )
+
+
+class ProfileView(RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+
+    def get_object(self):
+        return User.objects.get(
+            pk=self.request.user.pk
+        )
+
+
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = ProfileSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = [
+
+    ]
+    filter_backends = [
+        SearchFilter,
+    ]
+    search_fields = [
+        'name',
+    ]
+    lookup_field = 'username'
