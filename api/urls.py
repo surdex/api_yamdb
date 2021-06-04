@@ -2,14 +2,9 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    CommentViewSet,
-    ProfileView,
-    ReviewViewSet,
-    SendConfirmationCodeView,
-    SendTokenView,
-    UserViewSet,
+    CommentViewSet, ProfileView, ReviewViewSet, SendConfirmationCodeView,
+    SendTokenView, UserViewSet,
 )
-
 
 v1_router = DefaultRouter()
 v1_router.register(

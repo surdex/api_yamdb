@@ -38,7 +38,6 @@ class CommentSerializer(serializers.ModelSerializer):
         field = ['id', 'text', 'author', 'pub_date']
 
 
-
 class SendConfirmationCodeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
 

@@ -3,14 +3,11 @@ from uuid import uuid4
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-
 from django_filters import rest_framework
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status
 from rest_framework.generics import (
-    get_object_or_404,
-    CreateAPIView,
-    RetrieveUpdateAPIView,
+    CreateAPIView, RetrieveUpdateAPIView, get_object_or_404,
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -18,15 +15,11 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .models import Comment, Review, Title
-from .permissions import AdminOnly, DoWhatYouWant, IsAuthorOrReadOnly
+from .permissions import AdminOnly, DoWhatYouWant, IsAuthAdmModerOrReadOnly
 from .serializers import (
-    CommentSerializer,
-    ProfileSerializer,
-    ReviewSerializer,
-    SendConfirmationCodeSerializer,
-    SendTokenSerializer,
+    CommentSerializer, ProfileSerializer, ReviewSerializer,
+    SendConfirmationCodeSerializer, SendTokenSerializer,
 )
-
 
 User = get_user_model()
 
@@ -34,7 +27,7 @@ User = get_user_model()
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,
-                          IsAuthorOrReadOnly)
+                          IsAuthAdmModerOrReadOnly)
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
@@ -49,7 +42,7 @@ class ReviewViewSet(ModelViewSet):
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,
-                          IsAuthorOrReadOnly)
+                          IsAuthAdmModerOrReadOnly)
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
@@ -129,8 +122,8 @@ class ProfileView(RetrieveUpdateAPIView):
 
     def perform_update(self, serializer):
         if not (
-            self.request.user.is_superuser or
-            self.request.user.role == 'admin'
+            self.request.user.is_superuser
+            or self.request.user.role == 'admin'
         ):
             serializer.validated_data['role'] = 'user'
         serializer.save()
