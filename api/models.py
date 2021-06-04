@@ -39,5 +39,8 @@ class User(AbstractUser):
         'password',
     ]
 
+    class Meta:
+        ordering = ['email']
+
     def __str__(self):
         return self.email
