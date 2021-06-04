@@ -150,3 +150,5 @@ dmypy.json
 # папки со статикой и медиа
 media/
 
+migrations/
+sent_emails/

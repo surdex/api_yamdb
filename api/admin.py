@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 
 from.models import Category, Comment, Genre, Review, Title
+
+User = get_user_model()
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -39,3 +42,4 @@ admin.site.register(Genre, GenreAdmin)
 admin.site.register(Title, TitleAdmin)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(User)
