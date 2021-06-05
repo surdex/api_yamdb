@@ -2,26 +2,75 @@ from uuid import uuid4
 
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from django_filters import rest_framework
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status
+from rest_framework import filters, status, viewsets
 from rest_framework.generics import (
     CreateAPIView, RetrieveUpdateAPIView, get_object_or_404,
+)
+from rest_framework.mixins import (
+    CreateModelMixin, DestroyModelMixin, ListModelMixin,
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import ModelViewSet
 
-from .models import Comment, Review, Title
-from .permissions import AdminOnly, DoWhatYouWant, IsAuthAdmModerOrReadOnly
+from .filters import TitleFilter
+from .models import Category, Genre, Review, Title
+from .permissions import (
+    AdminOnly, DoWhatYouWant, IsAuthAdmModerOrReadOnly, IsUserIsAdmin,
+)
 from .serializers import (
-    CommentSerializer, ProfileSerializer, ReviewSerializer,
-    SendConfirmationCodeSerializer, SendTokenSerializer,
+    CategorySerializer, CommentSerializer, GenreSerializer, ProfileSerializer,
+    ReviewSerializer, SendConfirmationCodeSerializer, SendTokenSerializer,
+    TitleCreateSerializer, TitleGetSerializer,
 )
 
 User = get_user_model()
+
+
+class CustomMixin(ListModelMixin,
+                  CreateModelMixin,
+                  DestroyModelMixin,
+                  viewsets.GenericViewSet):
+    pass
+
+
+class CategoryViewSet(CustomMixin):
+    queryset = Category.objects.all().order_by('-id')
+    permission_classes = [IsAuthenticatedOrReadOnly, IsUserIsAdmin]
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+
+
+class GenreViewSet(CustomMixin):
+    queryset = Genre.objects.all().order_by('-id')
+    permission_classes = [IsAuthenticatedOrReadOnly, IsUserIsAdmin]
+    serializer_class = GenreSerializer
+    lookup_field = 'slug'
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')
+    ).order_by('-id')
+    permission_classes = [IsAuthenticatedOrReadOnly, IsUserIsAdmin]
+    pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'partial_update'):
+            return TitleCreateSerializer
+        return TitleGetSerializer
 
 
 class ReviewViewSet(ModelViewSet):
@@ -36,7 +85,8 @@ class ReviewViewSet(ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(ModelViewSet):
@@ -54,7 +104,11 @@ class CommentViewSet(ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        review = get_object_or_404(
+            Review, title=self.kwargs.get('title_id'),
+            id=self.kwargs.get('review_id')
+        )
+        serializer.save(author=self.request.user, review=review)
 
 
 class SendConfirmationCodeView(CreateAPIView):
