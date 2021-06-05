@@ -1,11 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.db.models import fields
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, serializers
-from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Comment, Review
+from .models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
@@ -18,13 +16,19 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        field = ['id', 'title', 'text', 'author', 'score', 'pub_date']
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=['author', 'title']
-            )
-        ]
+        fields = ['id', 'text', 'author', 'score', 'pub_date']
+
+    def create(self, validated_data):
+        title = get_object_or_404(
+            Title,
+            id=self.context.get('view').kwargs.get('title_id')
+        )
+        if Review.objects.filter(
+                title=title,
+                author=self.context.get('request').user
+        ).exists():
+            raise serializers.ValidationError()
+        return super().create(validated_data)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -35,7 +39,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        field = ['id', 'text', 'author', 'pub_date']
+        fields = ['id', 'text', 'author', 'pub_date']
 
 
 class SendConfirmationCodeSerializer(serializers.ModelSerializer):
@@ -94,3 +98,41 @@ class ProfileSerializer(serializers.ModelSerializer):
             'role',
         ]
         model = User
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug')
+        model = Category
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
+
+
+class TitleGetSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.IntegerField(min_value=1, max_value=10)
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all(),
+        many=True
+    )
+
+    class Meta:
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+        model = Title
