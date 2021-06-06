@@ -2,7 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    CategoryViewSet, CommentViewSet, GenreViewSet, ProfileView, ReviewViewSet,
+    CategoryViewSet, CommentViewSet, GenreViewSet, ReviewViewSet,
     SendConfirmationCodeView, SendTokenView, TitleViewSet, UserViewSet,
 )
 
@@ -23,7 +23,6 @@ v1_router.register(
 v1_router.register(
     'users',
     UserViewSet,
-    basename='users'
 )
 
 api_v1_urlpatterns = [
@@ -34,10 +33,6 @@ api_v1_urlpatterns = [
     path(
         'auth/token/',
         SendTokenView.as_view(),
-    ),
-    path(
-        'users/me/',
-        ProfileView.as_view(),
     ),
     path('', include(v1_router.urls))
 ]

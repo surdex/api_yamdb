@@ -4,10 +4,13 @@ from django.db import models
 
 
 class User(AbstractUser):
+    _USER = 'user'
+    _MODERATOR = 'moderator'
+    _ADMIN = 'admin'
     USER_ROLES = [
-        ('user', 'user'),
-        ('moderator', 'moderator'),
-        ('admin', 'admin'),
+        (_USER, 'user'),
+        (_MODERATOR, 'moderator'),
+        (_ADMIN, 'admin'),
     ]
     username = models.CharField(
         max_length=30,
@@ -27,7 +30,7 @@ class User(AbstractUser):
     role = models.CharField(
         max_length=10,
         choices=USER_ROLES,
-        default='user'
+        default=_USER,
     )
     password = models.CharField(
         max_length=128,

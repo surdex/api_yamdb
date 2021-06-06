@@ -12,11 +12,6 @@ class IsAuthAdmModerOrReadOnly(permissions.BasePermission):
         return result
 
 
-class DoWhatYouWant(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return True
-
-
 class AdminOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated and (
