@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from .validators import year_validation
+
 
 class User(AbstractUser):
     USER_ROLES = [
@@ -48,16 +50,24 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Catgory's name")
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        verbose_name = "Catgory's name"
+        verbose_name_plural = "Categories' names"
 
     def __str__(self):
         return self.name
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Genre's name")
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        verbose_name = "Genre's name"
+        verbose_name_plural = "Genres' names"
 
     def __str__(self):
         return self.name
@@ -65,7 +75,12 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
-    year = models.IntegerField()
+    year = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=[year_validation],
+        verbose_name="Year"
+    )
     description = models.TextField(blank=True, null=True)
     genre = models.ManyToManyField(
         Genre, blank=True, related_name='titles'
