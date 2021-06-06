@@ -48,6 +48,14 @@ class User(AbstractUser):
     class Meta:
         ordering = ['email']
 
+    @property
+    def is_admin(self):
+        return self.role == self._ADMIN or self.is_staff
+
+    @property
+    def is_moderator(self):
+        return self.role == self._MODERATOR
+
     def __str__(self):
         return self.email
 
@@ -108,7 +116,14 @@ class Review(models.Model):
         'Title', on_delete=models.CASCADE, related_name='reviews'
     )
     score = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        validators=[
+            MinValueValidator(
+                1, message='Please enter an integer in the range from 1 to 10'
+            ),
+            MaxValueValidator(
+                10, message='Please enter an integer in the range from 1 to 10'
+            )
+        ],
     )
 
     class Meta:

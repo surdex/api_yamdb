@@ -18,17 +18,21 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'text', 'author', 'score', 'pub_date']
 
-    def create(self, validated_data):
+    def validate(self, data):
         title = get_object_or_404(
             Title,
             id=self.context.get('view').kwargs.get('title_id')
         )
-        if Review.objects.filter(
+        request = self.context.get('request')
+        if request.method == 'POST':
+            if Review.objects.filter(
                 title=title,
-                author=self.context.get('request').user
-        ).exists():
-            raise serializers.ValidationError()
-        return super().create(validated_data)
+                author=request.user
+            ).exists():
+                raise serializers.ValidationError(
+                    'You can write only one review per work'
+                )
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):

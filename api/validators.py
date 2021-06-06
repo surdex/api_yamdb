@@ -1,9 +1,11 @@
-from django.core.exceptions import ValidationError
 import datetime
+
+from django.core.exceptions import ValidationError
+
 
 def year_validation(value):
     if value > datetime.datetime.now().year:
         raise ValidationError(
-            _('%(value)s is not acceptable!'),
+            ('%(value)s is not acceptable!'),
             params={'value': value},
         )
