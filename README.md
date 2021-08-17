@@ -129,7 +129,7 @@ POST Response:
 
 ### Получить/обновить/удалить отзыв по id http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/
 
-PUT request:
+PATCH request:
 
 ```
 {
@@ -146,6 +146,83 @@ GET/PUT Response:
   "text": "string",
   "author": "string",
   "score": 1,
+  "pub_date": "2019-08-24T14:15:22Z"
+}
+```
+
+### Комментарии к отзывам
+
+GET/PUT - http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/
+
+GET Response:
+
+```
+[
+  {
+    "count": 0,
+    "next": "string",
+    "previous": "string",
+    "results": [
+      {
+        "id": 0,
+        "text": "string",
+        "author": "string",
+        "pub_date": "2019-08-24T14:15:22Z"
+      }
+    ]
+  }
+]
+```
+
+POST Request:
+
+```
+[
+  {
+    "count": 0,
+    "next": "string",
+    "previous": "string",
+    "results": [
+      {
+        "id": 0,
+        "text": "string",
+        "author": "string",
+        "pub_date": "2019-08-24T14:15:22Z"
+      }
+    ]
+  }
+]
+```
+
+POST Response:
+
+```
+{
+  "id": 0,
+  "text": "string",
+  "author": "string",
+  "pub_date": "2019-08-24T14:15:22Z"
+}
+```
+
+По id комментария GET/PATCH/DELETE -
+http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
+
+PATCH Request:
+
+```
+{
+  "text": "string"
+}
+```
+
+Response:
+
+```
+{
+  "id": 0,
+  "text": "string",
+  "author": "string",
   "pub_date": "2019-08-24T14:15:22Z"
 }
 ```
